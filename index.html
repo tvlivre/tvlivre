@@ -2,21 +2,25 @@
 <html>
 <head>
   <title>TV Livre+ - Login</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <h1>TV Livre+</h1>
     <p>Assista tudo, pague pouco!</p>
-    <input type="text" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginSenha" placeholder="Senha">
+    <input type="text" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginSenha" placeholder="Senha" />
     <button onclick="fazerLogin()">Entrar</button>
     <p>Não tem conta? <a href="cliente-editar.html">Crie aqui</a></p>
   </div>
+
+  <!-- Firebase libs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"></script>
+
   <script src="script.js"></script>
+  <script>initPagina("index");</script>
 </body>
 </html>
