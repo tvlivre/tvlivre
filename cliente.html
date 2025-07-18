@@ -2,16 +2,20 @@
 <html>
 <head>
   <title>TV Livre+ - Loja</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container" id="produtos"></div>
+
   <a href="cliente-pedidos.html">📦 Meus Pedidos</a>
   <a href="cliente-editar.html">⚙️ Editar Conta</a>
   <a href="index.html">↩️ Sair</a>
+
+  <!-- Firebase libs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
   <script src="script.js"></script>
+  <script>initPagina("cliente");</script>
 </body>
 </html>
