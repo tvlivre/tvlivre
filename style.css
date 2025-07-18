@@ -16,7 +16,8 @@ body {
   width: 100%;
   max-width: 500px;
 }
-input, button {
+input,
+button {
   display: block;
   margin: 10px auto;
   padding: 10px;
@@ -38,4 +39,8 @@ a {
   color: #0ff;
   display: block;
   margin-top: 10px;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
