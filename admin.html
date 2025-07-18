@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel do Administrador - TV Livre+</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #alertaEstoque {
+      background-color: #ff4444;
+      color: white;
+      font-weight: bold;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 18px;
+      animation: piscar 1.5s infinite alternate;
+    }
+    @keyframes piscar {
+      from {opacity: 1;}
+      to {opacity: 0.5;}
+    }
+    button {
+      margin-bottom: 15px;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    textarea {
+      width: 300px;
+      height: 70px;
+      border-radius: 8px;
+      padding: 8px;
+      border: none;
+      margin-bottom: 10px;
+      resize: none;
+    }
+    input, textarea {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="history.back()">⬅ Voltar</button>
+
+  <div class="container">
+    <h2>Painel do Administrador</h2>
+
+    <div id="alertaEstoque" style="display:none;"></div>
+
+    <section>
+      <h3>Cadastrar novo produto</h3>
+      <input type="text" id="nomeProd" placeholder="Nome do produto" />
+      <input type="number" id="precoProd" placeholder="Preço (R$)" />
+      <input type="number" id="estoqueProd" placeholder="Estoque" />
+      <textarea id="descProd" placeholder="Descrição"></textarea>
+      <input type="text" id="imgProd" placeholder="URL da imagem" />
+      <button onclick="adicionarProduto()">Adicionar Produto</button>
+    </section>
+
+    <section>
+      <h3>Produtos cadastrados</h3>
+      <ul id="listaProdutos"></ul>
+    </section>
+
+    <section>
+      <h3>Pedidos</h3>
+      <ul id="listaPedidos"></ul>
+      <input type="number" id="pedidoIndex" placeholder="Nº do pedido" />
+      <input type="text" id="novoStatus" placeholder="Novo status (ex: 'Saiu para entrega')" />
+      <button onclick="alterarStatus()">Atualizar Status</button>
+    </section>
+  </div>
+
+  <script>
+    let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    function salvarProdutos() {
+      localStorage.setItem("produtos", JSON.stringify(produtos));
+    }
+    function salvarPedidos() {
+      localStorage.setItem("pedidos", JSON.stringify(pedidos));
+    }
+
+    function adicionarProduto() {
+      const nome = document.getElementById("nomeProd").value.trim();
+      const preco = parseFloat(document.getElementById("precoProd").value);
+      const estoque = parseInt(document.getElementById("estoqueProd").value);
+      const desc = document.getElementById("descProd").value.trim();
+      const img = document.getElementById("imgProd").value.trim();
+
+      if (!nome || isNaN(preco) || isNaN(estoque) || !desc || !img) {
+        alert("Preencha todos os campos corretamente!");
+        return;
+      }
+
+      produtos.push({ nome, preco, estoque, desc, img });
+      salvarProdutos();
+      alert("Produto adicionado!");
+      document.getElementById("nomeProd").value = "";
+      document.getElementById("precoProd").value = "";
+      document.getElementById("estoqueProd").value = "";
+      document.getElementById("descProd").value = "";
+      document.getElementById("imgProd").value = "";
+      mostrarProdutos();
+      checarEstoque();
+    }
+
+    function removerProduto(index) {
+      if (confirm("Remover este produto?")) {
+        produtos.splice(index, 1);
+        salvarProdutos();
+        mostrarProdutos();
+        checarEstoque();
+      }
+    }
+
+    function mostrarProdutos() {
+      const lista = document.getElementById("listaProdutos");
+      lista.innerHTML = "";
+      produtos.forEach((p, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${p.nome}</strong> - R$${p.preco.toFixed(2)} - Estoque: ${p.estoque} 
+          <button onclick="removerProduto(${i})" style="margin-left:10px; color:red;">Remover</button>`;
+        lista.appendChild(li);
+      });
+    }
+
+    function mostrarPedidos() {
+      const lista = document.getElementById("listaPedidos");
+      lista.innerHTML = "";
+      pedidos.forEach((p, i) => {
+        const userDados = usuarios.find(u => u.user === p.user) || {};
+        const infoCliente = `
+          Nome: ${userDados.nome || "N/A"} | 
+          CPF/CNPJ: ${userDados.cpfCnpj || "N/A"} | 
+          CEP: ${userDados.cep || "N/A"} | 
+          Endereço: ${userDados.endereco || "N/A"}`;
+
+        const li = document.createElement("li");
+        li.textContent = `#${i} - Cliente: ${p.user} - Produto: ${p.produto} - Quantidade: ${p.quantidade} - Data: ${p.data} - Status: ${p.status || "Despachando"} - ${infoCliente}`;
+        lista.appendChild(li);
+      });
+    }
+
+    function alterarStatus() {
+      const i = parseInt(document.getElementById("pedidoIndex").value);
+      const status = document.getElementById("novoStatus").value.trim();
+      if (!isNaN(i) && status && pedidos[i]) {
+        pedidos[i].status = status;
+        salvarPedidos();
+        alert("Status atualizado!");
+        mostrarPedidos();
+      } else {
+        alert("Informe um número válido de pedido e um status.");
+      }
+    }
+
+    function checarEstoque() {
+      const alerta = document.getElementById("alertaEstoque");
+      const semEstoque = produtos.filter(p => p.estoque <= 0);
+      if (semEstoque.length > 0) {
+        alerta.style.display = "block";
+        alerta.textContent = "⚠ Atenção! Produtos sem estoque: " + semEstoque.map(p => p.nome).join(", ");
+      } else {
+        alerta.style.display = "none";
+      }
+    }
+
+    mostrarProdutos();
+    mostrarPedidos();
+    checarEstoque();
+  </script>
+</body>
+</html>

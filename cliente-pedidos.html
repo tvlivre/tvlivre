@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meus Pedidos - TV Livre+</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      background: #222;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="history.back()" style="margin:15px; padding:8px 15px; border-radius:6px; cursor:pointer;">⬅ Voltar</button>
+
+  <div class="container">
+    <h2>Meus Pedidos</h2>
+    <ul id="listaPedidos"></ul>
+  </div>
+
+  <script>
+    const user = localStorage.getItem("userLogado");
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+
+    function mostrarPedidos() {
+      const lista = document.getElementById("listaPedidos");
+      lista.innerHTML = "";
+      pedidos.filter(p => p.user === user).forEach((p, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>Produto:</strong> ${p.produto} <br>
+          <strong>Quantidade:</strong> ${p.quantidade} <br>
+          <strong>Data:</strong> ${p.data} <br>
+          <strong>Status:</strong> ${p.status || "Despachando"}
+        `;
+        lista.appendChild(li);
+      });
+    }
+
+    mostrarPedidos();
+  </script>
+</body>
+</html>

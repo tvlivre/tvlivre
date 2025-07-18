@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detalhes do Produto - TV Livre+</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .produto-detalhe {
+      max-width: 400px;
+      margin: 40px auto;
+      background: #222;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .produto-detalhe img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background-color: #0f0;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #000;
+      margin-top: 10px;
+    }
+    p.status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="history.back()" style="margin:15px; padding:8px 15px; border-radius:6px; cursor:pointer;">⬅ Voltar</button>
+
+  <div class="produto-detalhe" id="produtoDetalhe">
+    <!-- Conteúdo carregado pelo JS -->
+  </div>
+
+  <script>
+    let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const user = localStorage.getItem("userLogado");
+
+    const produtoIndex = parseInt(localStorage.getItem("produtoSelecionado"));
+    const div = document.getElementById("produtoDetalhe");
+
+    if (isNaN(produtoIndex) || produtoIndex < 0 || produtoIndex >= produtos.length) {
+      div.innerHTML = "<p>Produto não encontrado.</p>";
+    } else {
+      const p = produtos[produtoIndex];
+
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.nome}" />
+        <h2>${p.nome}</h2>
+        <p><strong>Preço:</strong> R$${p.preco.toFixed(2)}</p>
+        <p><strong>Estoque:</strong> ${p.estoque}</p>
+        <p><strong>Descrição:</strong><br>${p.desc}</p>
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" id="quantidade" min="1" max="${p.estoque}" value="1" />
+        <button onclick="comprar()">Comprar</button>
+        <p class="status" id="statusCompra"></p>
+      `;
+    }
+
+    function comprar() {
+      const qtdInput = document.getElementById("quantidade");
+      const qtd = parseInt(qtdInput.value);
+      if (isNaN(qtd) || qtd < 1) {
+        alert("Informe uma quantidade válida.");
+        return;
+      }
+      if (qtd > produtos[produtoIndex].estoque) {
+        alert("Quantidade maior que o estoque disponível.");
+        return;
+      }
+
+      // Pega dados do usuário logado
+      const usuario = usuarios.find(u => u.user === user);
+      if (!usuario) {
+        alert("Usuário não encontrado, faça login novamente.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Registra pedido
+      const novoPedido = {
+        user: user,
+        produto: produtos[produtoIndex].nome,
+        quantidade: qtd,
+        data: new Date().toLocaleString(),
+        status: "Despachando",
+      };
+      pedidos.push(novoPedido);
+
+      // Diminui estoque
+      produtos[produtoIndex].estoque -= qtd;
+
+      // Salva tudo
+      localStorage.setItem("produtos", JSON.stringify(produtos));
+      localStorage.setItem("pedidos", JSON.stringify(pedidos));
+
+      document.getElementById("statusCompra").textContent = "Compra registrada com sucesso!";
+
+      setTimeout(() => {
+        window.location.href = "cliente.html";
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

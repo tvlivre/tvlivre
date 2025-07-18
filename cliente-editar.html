@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Editar Informações - TV Livre+</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <button onclick="history.back()" style="margin:15px; padding:8px 15px; border-radius:6px; cursor:pointer;">⬅ Voltar</button>
+
+  <div class="container">
+    <h2>Editar Informações</h2>
+    <input id="nome" type="text" placeholder="Nome completo" />
+    <input id="cpfCnpj" type="text" placeholder="CPF ou CNPJ" />
+    <input id="cep" type="text" placeholder="CEP" />
+    <input id="endereco" type="text" placeholder="Endereço" />
+    <button onclick="salvarInfos()">Salvar</button>
+  </div>
+
+  <script>
+    const user = localStorage.getItem("userLogado");
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    function carregarInfos() {
+      const usuario = usuarios.find(u => u.user === user);
+      if (usuario) {
+        document.getElementById("nome").value = usuario.nome || "";
+        document.getElementById("cpfCnpj").value = usuario.cpfCnpj || "";
+        document.getElementById("cep").value = usuario.cep || "";
+        document.getElementById("endereco").value = usuario.endereco || "";
+      }
+    }
+
+    function salvarInfos() {
+      const usuario = usuarios.find(u => u.user === user);
+      if (!usuario) {
+        alert("Usuário não encontrado.");
+        return;
+      }
+      usuario.nome = document.getElementById("nome").value.trim();
+      usuario.cpfCnpj = document.getElementById("cpfCnpj").value.trim();
+      usuario.cep = document.getElementById("cep").value.trim();
+      usuario.endereco = document.getElementById("endereco").value.trim();
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      alert("Informações salvas!");
+      window.location.href = "cliente.html";
+    }
+
+    carregarInfos();
+  </script>
+</body>
+</html>

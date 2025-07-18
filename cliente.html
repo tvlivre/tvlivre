@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loja TV Livre+</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .produto {
+      display: inline-block;
+      width: 220px;
+      margin: 15px;
+      padding: 15px;
+      background: #222;
+      border-radius: 10px;
+      text-align: center;
+      vertical-align: top;
+      cursor: pointer;
+      position: relative;
+      filter: none;
+      transition: filter 0.3s ease;
+    }
+    .produto.sem-estoque {
+      filter: grayscale(1);
+    }
+    .produto.sem-estoque::after {
+      content: "X";
+      color: red;
+      font-weight: bold;
+      font-size: 40px;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+    }
+    .produto img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #0f0;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="history.back()" style="margin:15px; padding:8px 15px; border-radius:6px; cursor:pointer;">⬅ Voltar</button>
+
+  <div class="container">
+    <h2>Loja TV Livre+</h2>
+
+    <div>
+      <button onclick="window.location.href='cliente-editar.html'">Editar Informações</button>
+      <button onclick="window.location.href='cliente-pedidos.html'">Meus Pedidos</button>
+      <button onclick="logout()">Sair</button>
+    </div>
+
+    <div id="produtosContainer"></div>
+  </div>
+
+  <script>
+    let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+    const user = localStorage.getItem("userLogado");
+
+    const container = document.getElementById("produtosContainer");
+
+    function mostrarProdutos() {
+      container.innerHTML = "";
+      produtos.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "produto" + (p.estoque <= 0 ? " sem-estoque" : "");
+        div.innerHTML = `
+          <img src="${p.img}" alt="${p.nome}" />
+          <h3>${p.nome}</h3>
+          <p>R$${p.preco.toFixed(2)}</p>
+          <p>Estoque: ${p.estoque}</p>
+        `;
+        if (p.estoque > 0) {
+          div.onclick = () => {
+            localStorage.setItem("produtoSelecionado", i);
+            window.location.href = "produto.html";
+          };
+        }
+        container.appendChild(div);
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem("userLogado");
+      localStorage.removeItem("tipo");
+      window.location.href = "login.html";
+    }
+
+    mostrarProdutos();
+  </script>
+</body>
+</html>
