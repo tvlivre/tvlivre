@@ -1,4 +1,4 @@
-// Firebase config
+// Config Firebase (copie do console Firebase)
 const firebaseConfig = {
   apiKey: "AIzaSyCX27cLtJwL83RYYiedbVjulWEpoZ7xpnE",
   authDomain: "tvlivre-7442e.firebaseapp.com",
@@ -9,18 +9,18 @@ const firebaseConfig = {
   appId: "1:446276310209:web:fca582c294dcc20a577040"
 };
 
+// Inicializa Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 const storage = firebase.storage();
 
-let userData = {};
-
-// ===== LOGIN =====
+// === LOGIN ===
 function fazerLogin() {
-  const email = document.getElementById("loginEmail").value;
-  const senha = document.getElementById("loginSenha").value;
+  const email = document.getElementById("loginEmail").value.trim();
+  const senha = document.getElementById("loginSenha").value.trim();
 
+  // Login admin hardcoded
   if (email.toLowerCase() === "iraci@admin.com" && senha === "Igor#2011") {
     window.location.href = "admin.html";
     return;
@@ -31,7 +31,7 @@ function fazerLogin() {
     .catch(() => alert("Usuário ou senha inválidos"));
 }
 
-// ===== CRIAR OU ATUALIZAR CONTA =====
+// === CRIAR OU ATUALIZAR CONTA ===
 function criarOuAtualizarConta() {
   const nome = document.getElementById("nome").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -46,7 +46,6 @@ function criarOuAtualizarConta() {
   }
 
   if (!auth.currentUser) {
-    // Criar conta
     auth.createUserWithEmailAndPassword(email, senha)
       .then(cred => {
         db.ref("clientes/" + cred.user.uid).set({ nome, email, cpf, cep, endereco });
@@ -55,10 +54,8 @@ function criarOuAtualizarConta() {
       })
       .catch(e => alert("Erro ao criar conta: " + e.message));
   } else {
-    // Atualizar dados
     const user = auth.currentUser;
     let updates = { nome, email, cpf, cep, endereco };
-
     db.ref("clientes/" + user.uid).update(updates)
       .then(() => {
         if (senha) user.updatePassword(senha).catch(e => alert("Erro na senha: " + e.message));
@@ -68,7 +65,7 @@ function criarOuAtualizarConta() {
   }
 }
 
-// ===== CARREGAR DADOS DO USUÁRIO (Editar Conta) =====
+// === CARREGAR DADOS DO USUÁRIO (Editar Conta) ===
 function carregarDadosUsuario() {
   auth.onAuthStateChanged(user => {
     if (!user) {
@@ -86,7 +83,7 @@ function carregarDadosUsuario() {
   });
 }
 
-// ===== ADICIONAR PRODUTO (ADMIN) =====
+// === ADICIONAR PRODUTO (ADMIN) ===
 function adicionarProduto() {
   const nome = document.getElementById("nomeProduto").value.trim();
   const estoque = parseInt(document.getElementById("estoqueProduto").value);
@@ -103,7 +100,7 @@ function adicionarProduto() {
 
   const uploadTask = storage.ref('produtos/' + id).put(imagemFile);
 
-  uploadTask.on('state_changed', 
+  uploadTask.on('state_changed',
     snapshot => {},
     error => alert("Erro no upload da imagem: " + error.message),
     () => {
@@ -123,7 +120,7 @@ function adicionarProduto() {
   );
 }
 
-// ===== CARREGAR PRODUTOS PARA A LOJA =====
+// === CARREGAR PRODUTOS PARA A LOJA ===
 function carregarProdutos() {
   const container = document.getElementById("produtos");
   if (!container) return;
@@ -172,7 +169,7 @@ function carregarProdutos() {
   });
 }
 
-// ===== CARREGAR PRODUTO NA PÁGINA DE DETALHES =====
+// === CARREGAR PRODUTO NA PÁGINA DE DETALHES ===
 function carregarDetalhesProduto() {
   const id = localStorage.getItem("produtoSelecionado");
   const container = document.getElementById("detalhesProduto");
@@ -190,13 +187,14 @@ function carregarDetalhesProduto() {
       <p>${p.descricao}</p>
       <p><b>Preço:</b> R$${p.preco.toFixed(2)}</p>
       <p><b>Estoque:</b> ${p.estoque}</p>
-      <input type="number" id="qtd" placeholder="Quantidade" min="1" max="${p.estoque}" value="1">
+      <input type="number" id="qtd" placeholder="Quantidade" min="1" max="${p.estoque}" value="1" />
       <button onclick="comprarProduto('${id}')">Comprar</button>
+      <br><a href="cliente.html">↩️ Voltar</a>
     `;
   });
 }
 
-// ===== COMPRAR PRODUTO =====
+// === COMPRAR PRODUTO ===
 function comprarProduto(id) {
   const qtd = parseInt(document.getElementById("qtd").value);
   if (isNaN(qtd) || qtd < 1) {
@@ -239,12 +237,11 @@ function comprarProduto(id) {
 
       db.ref("pedidos/" + pedidoId).set(pedido);
 
-      // Atualizar estoque com transação segura
       db.ref("produtos/" + id + "/estoque").transaction(current => {
         if (current === null) return 0;
         if (current < qtd) {
           alert("Estoque insuficiente");
-          return; // cancela
+          return;
         }
         return current - qtd;
       }).then(() => {
@@ -255,7 +252,7 @@ function comprarProduto(id) {
   });
 }
 
-// ===== LISTAR PEDIDOS DO CLIENTE =====
+// === LISTAR PEDIDOS DO CLIENTE ===
 function verPedidosCliente() {
   const user = auth.currentUser;
   const ul = document.getElementById("listaPedidos");
@@ -275,12 +272,11 @@ function verPedidosCliente() {
   });
 }
 
-// ===== LISTAR PEDIDOS E ALERTAS ADMIN =====
+// === LISTAR PEDIDOS E ALERTAS ADMIN ===
 function listarPedidosAdmin() {
   const ul = document.getElementById("pedidosLista");
   const alerta = document.getElementById("alertaEstoque");
 
-  // Avisos para produtos sem estoque
   db.ref("produtos").once("value", snap => {
     alerta.innerHTML = "";
     snap.forEach(prodSnap => {
@@ -291,7 +287,6 @@ function listarPedidosAdmin() {
     });
   });
 
-  // Listar pedidos com todas infos
   db.ref("pedidos").on("value", snap => {
     ul.innerHTML = "";
     snap.forEach(pedSnap => {
@@ -300,7 +295,7 @@ function listarPedidosAdmin() {
       li.innerHTML = `
         <b>${p.cliente}</b> comprou <b>${p.quantidade}</b> de <b>${p.produtoNome}</b> em ${p.data}<br>
         Endereço: ${p.endereco} / CEP: ${p.cep} / CPF/CNPJ: ${p.cpf}<br>
-        Status: <input type="text" value="${p.status}" onblur="editarStatus('${pedSnap.key}', this.value)">
+        Status: <input type="text" value="${p.status}" onblur="editarStatus('${pedSnap.key}', this.value)" />
         <button onclick="removerPedido('${pedSnap.key}')">Remover Pedido</button>
         <hr>
       `;
@@ -309,20 +304,20 @@ function listarPedidosAdmin() {
   });
 }
 
-// ===== EDITAR STATUS DO PEDIDO =====
+// === EDITAR STATUS DO PEDIDO ===
 function editarStatus(id, novoStatus) {
   if (!novoStatus) return;
   db.ref("pedidos/" + id + "/status").set(novoStatus);
 }
 
-// ===== REMOVER PEDIDO (ADMIN) =====
+// === REMOVER PEDIDO (ADMIN) ===
 function removerPedido(id) {
   if (confirm("Remover pedido?")) {
     db.ref("pedidos/" + id).remove();
   }
 }
 
-// ===== CARREGAR PRODUTOS NO ADMIN (COM OPÇÃO REMOVER) =====
+// === CARREGAR PRODUTOS NO ADMIN (COM OPÇÃO REMOVER) ===
 function carregarProdutosAdmin() {
   const container = document.getElementById("produtosAdmin");
   if (!container) return;
@@ -340,7 +335,7 @@ function carregarProdutosAdmin() {
       prodDiv.style.borderRadius = "8px";
 
       prodDiv.innerHTML = `
-        <img src="${p.imagem}" style="max-width: 100px; filter: ${p.estoque <= 0 ? 'grayscale(100%)' : 'none'};">
+        <img src="${p.imagem}" style="max-width: 100px; filter: ${p.estoque <= 0 ? 'grayscale(100%)' : 'none'};" />
         <b>${p.nome}</b><br>
         Estoque: ${p.estoque}<br>
         Preço: R$${p.preco.toFixed(2)}<br>
@@ -352,14 +347,14 @@ function carregarProdutosAdmin() {
   });
 }
 
-// ===== REMOVER PRODUTO (ADMIN) =====
+// === REMOVER PRODUTO (ADMIN) ===
 function removerProduto(id) {
   if (confirm("Remover produto?")) {
     db.ref("produtos/" + id).remove();
   }
 }
 
-// ===== INICIAR FUNÇÕES DE CADA PÁGINA =====
+// === INICIAR FUNÇÕES DE CADA PÁGINA ===
 function initPagina(pagina) {
   auth.onAuthStateChanged(user => {
     if (!user && pagina !== "index") {
@@ -367,7 +362,7 @@ function initPagina(pagina) {
       return;
     }
 
-    switch(pagina) {
+    switch (pagina) {
       case "cliente-editar":
         carregarDadosUsuario();
         break;
@@ -387,5 +382,3 @@ function initPagina(pagina) {
     }
   });
 }
-
-// Chamada no script de cada página (exemplo: initPagina("cliente"))
