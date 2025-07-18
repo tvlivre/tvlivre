@@ -1,50 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Meus Pedidos - TV Livre+</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    li {
-      background: #222;
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 10px;
-    }
-  </style>
+  <title>Meus Pedidos</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <button onclick="history.back()" style="margin:15px; padding:8px 15px; border-radius:6px; cursor:pointer;">⬅ Voltar</button>
-
   <div class="container">
-    <h2>Meus Pedidos</h2>
+    <h2>Seus Pedidos</h2>
     <ul id="listaPedidos"></ul>
+    <a href="cliente.html">↩️ Voltar</a>
   </div>
-
-  <script>
-    const user = localStorage.getItem("userLogado");
-    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-
-    function mostrarPedidos() {
-      const lista = document.getElementById("listaPedidos");
-      lista.innerHTML = "";
-      pedidos.filter(p => p.user === user).forEach((p, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>Produto:</strong> ${p.produto} <br>
-          <strong>Quantidade:</strong> ${p.quantidade} <br>
-          <strong>Data:</strong> ${p.data} <br>
-          <strong>Status:</strong> ${p.status || "Despachando"}
-        `;
-        lista.appendChild(li);
-      });
-    }
-
-    mostrarPedidos();
-  </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
