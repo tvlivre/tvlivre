@@ -2,23 +2,27 @@
 <html>
 <head>
   <title>Cadastro / Editar</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <h2>Cadastro / Editar Conta</h2>
-    <input type="text" id="nome" placeholder="Nome completo">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="senha" placeholder="Senha (preencha para alterar)">
-    <input type="text" id="cpf" placeholder="CPF ou CNPJ">
-    <input type="text" id="cep" placeholder="CEP">
-    <input type="text" id="endereco" placeholder="Endereço completo">
+    <input type="text" id="nome" placeholder="Nome completo" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="senha" placeholder="Senha (preencha para alterar)" />
+    <input type="text" id="cpf" placeholder="CPF ou CNPJ" />
+    <input type="text" id="cep" placeholder="CEP" />
+    <input type="text" id="endereco" placeholder="Endereço completo" />
     <button onclick="criarOuAtualizarConta()">Salvar</button>
     <a href="cliente.html">↩️ Voltar</a>
   </div>
+
+  <!-- Firebase libs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
+
   <script src="script.js"></script>
+  <script>initPagina("cliente-editar");</script>
 </body>
 </html>
